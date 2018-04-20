@@ -22,6 +22,20 @@ function scrollToBottom(){
 socket.on('connect', function() {
 	console.log('Connected to server');
 
+	var params = jQuery.deparam(window.location.search);
+
+	socket.emit('join', params, function(err){
+		if(err){
+
+			alert(err);
+			window.location.href = '/';
+		}else{
+			console.log('No error');
+
+		}
+	});	
+	// console.log('No error');
+
 	// socket.emit('createEmail',{
 	// 	to : 'kv6070@gmail.com',
 	// 	text : 'Hey. This is Venu'

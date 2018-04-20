@@ -5,6 +5,8 @@ const socketIO = require('socket.io');
 
 
 const {generateMessage,generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
+
 const publicPath = path.join(__dirname + '/../public');
 
 const port = process.env.PORT || 3000;
@@ -36,12 +38,36 @@ io.on('connection',(socket) => {
 	// 	console.log('create Email',newEmail);
 	// });
 
-	//socket.emit from admin text Welcome to the chat app
+	// //socket.emit from admin text Welcome to the chat app
 
-	socket.emit('newMessage', generateMessage('Admin','Welcome to the chat app'));
+	// socket.emit('newMessage', generateMessage('Admin','Welcome to the chat app'));
 	
-	//socket.emit from admin text New User joined
-	socket.broadcast.emit('newMessage', generateMessage('Admin','New User joined'));
+	// //socket.emit from admin text New User joined
+	// socket.broadcast.emit('newMessage', generateMessage('Admin','New User joined'));
+
+	socket.on('join', (params,callback) => {
+
+		if(!isRealString(params.name) || !isRealString(params.room)){
+
+			callback('Name and room are required');
+		}
+
+		socket.join(params.room);
+
+
+		//io.emit to all -- > io.to('The Office Fans').emit()
+		//socket.boradcast.emit to all expect one --> socket.broadcast.to('The Office fans').emit()
+		//socket.emit to only one --> 
+
+		//socket.emit from admin text Welcome to the chat app
+
+		socket.emit('newMessage', generateMessage('Admin','Welcome to the chat app'));
+		
+		//socket.emit from admin text New User joined
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin',`${params.name} has joined`));
+		callback();
+
+	});
 
 	socket.on('createMessage', (message,callback) =>{
 
